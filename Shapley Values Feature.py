@@ -259,32 +259,39 @@ def get_dashboard_html(sae_release = "gpt2-small", sae_id="7-res-jb", feature_id
 
 whole_start_time = time.time()
 inte = 0
-for input in input_list:
-    part_start_time = time.time()
-    top_negative_indices = explain_lm(
-        input,
-        explainer,
-        model_name,
-        plot='display'
-    )
-    # 每组共25个feature都放进去
-    for i in top_negative_indices:
-        # hooked SAE Transformer will enable us to get the feature activations from the SAE
-        _, cache = sae_model.run_with_cache_with_saes(input, saes=[sae])
+with open('features.txt', 'w') as feature_file, open('time_log.txt', 'w') as time_file:
+    for input in input_list:
+        part_start_time = time.time()
+        top_negative_indices = explain_lm(
+            input,
+            explainer,
+            model_name,
+            plot='display'
+        )
+        # 每组共25个feature都放进去
+        for i in top_negative_indices:
+            # hooked SAE Transformer will enable us to get the feature activations from the SAE
+            _, cache = sae_model.run_with_cache_with_saes(input, saes=[sae])
 
-        # let's print the top 5 features and how much they fired
-        vals, inds = torch.topk(cache['blocks.7.hook_resid_pre.hook_sae_acts_post'][0, i, :],
-                                5)  # i - test token position ; the number after comma - the top n features
-        for val, ind in zip(vals, inds):
-            print(f"Feature {ind} fired {val:.2f}")
-            feature_id.append(int(ind))
-    inte += 1
-    print(f"The {inte}th row: feature id {feature_id}")
-    part_end_time = time.time()
-    part_cost_time = part_end_time - part_start_time
-    print(f"part {inte} cost time is {part_cost_time}")
+            # let's print the top 5 features and how much they fired
+            vals, inds = torch.topk(cache['blocks.7.hook_resid_pre.hook_sae_acts_post'][0, i, :],
+                                    5)  # i - test token position ; the number after comma - the top n features
+            for val, ind in zip(vals, inds):
+                feature_file.write(f"Feature {ind} fired {val:.2f}\n")
+                print(f"Feature {ind} fired {val:.2f}")
+                feature_id.append(int(ind))
+        # 记录当前部分的feature_id
+        inte += 1
+        print(f"The {inte}th row: feature id {feature_id}")
 
-end_time = time.time()
-cost_time = end_time - start_time
-print(f"all cost time is {cost_time}")
-print(feature_id)
+        # 记录该部分耗时
+        part_end_time = time.time()
+        part_cost_time = part_end_time - part_start_time
+        print(f"part {inte} cost time is {part_cost_time}")
+        time_file.write(f"part {inte} cost time: {part_cost_time:.2f} seconds\n")
+
+    whole_end_time = time.time()
+    whole_cost_time = whole_end_time - whole_start_time
+    print(f"whole cost time is {whole_cost_time}")
+    time_file.write(f"Total cost time: {whole_cost_time:.2f} seconds\n")
+    print(feature_id)
