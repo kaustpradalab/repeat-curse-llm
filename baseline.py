@@ -1,13 +1,5 @@
 import os
-# 批量设置环境变量
-os.environ['HF_DATASETS_CACHE'] = '/root/autodl-tmp/.catch'
-os.environ['HF_CACHE_DIR'] = '/root/autodl-tmp/.catch'
-os.environ['HF_HOME'] = '/root/autodl-tmp/.catch/huggingface'
-os.environ['HF_HUB_CACHE'] = '/root/autodl-tmp/.catch/huggingface/hub'
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-os.environ['HF_TOKEN'] = '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'
 import sys
-# 将父文件夹的路径添加到 sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from evaluate_agent import evaluate_agent
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
@@ -36,8 +28,7 @@ def decoding(model_path: str,
             save_path: str
             ):
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    # 在循环外部预先加载模型
-    if 'llama' in model_path: # 降低精度
+    if 'llama' in model_path: 
         model = AutoModelForCausalLM.from_pretrained(model_path, pad_token_id=tokenizer.eos_token_id, torch_dtype=torch.float16).to(torch_device)
     else:
          model = AutoModelForCausalLM.from_pretrained(model_path, pad_token_id=tokenizer.eos_token_id).to(torch_device)
@@ -56,14 +47,14 @@ def decoding(model_path: str,
         set_seed(42)
     
     ds = load_dataset(dataset)
-    with open(save_path, 'w', encoding='utf-8') as f:  # 打开文件准备写入
-        for i in tqdm(range(500), desc=f'Processing {dataset}'): # 加一个tqdm
+    with open(save_path, 'w', encoding='utf-8') as f:  
+        for i in tqdm(range(500), desc=f'Processing {dataset}'): 
             if 'Diversity' in dataset:
                 prompt = ds['train']['question'][i]
             if 'Academic' in dataset:
                 response = ds['train']['response'][i]
                 response_edited = re.search(r'<question>(.*?)</question>', response)
-                prompt = response_edited.group(1).strip()  # 打印匹配到的 question 内容
+                prompt = response_edited.group(1).strip()  
             if 'natural' in dataset:
                 prompt = ds['train']['query'][i]
             print(prompt)
@@ -86,7 +77,7 @@ def decoding(model_path: str,
             }
             print("Result:\n" + 100 * '-')
             print(result)
-            # 将结果写入文件（每行一个 JSON 对象）
+   
             f.write(json.dumps(result, ensure_ascii=False) + '\n')
    
 
