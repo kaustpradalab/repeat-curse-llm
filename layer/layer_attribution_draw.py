@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-# 定义层名列表
+# name of layer
 # gpt2small
 # layer_names = [
 #     'embed', 'pos_embed', '0_attn_out', '0_mlp_out', '1_attn_out', '1_mlp_out', '2_attn_out',
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # layer_names = ['embed', '0_attn_out', '0_mlp_out', '1_attn_out', '1_mlp_out', '2_attn_out', '2_mlp_out', '3_attn_out', '3_mlp_out', '4_attn_out', '4_mlp_out', '5_attn_out', '5_mlp_out', '6_attn_out', '6_mlp_out', '7_attn_out', '7_mlp_out', '8_attn_out', '8_mlp_out', '9_attn_out', '9_mlp_out', '10_attn_out', '10_mlp_out', '11_attn_out', '11_mlp_out', '12_attn_out', '12_mlp_out', '13_attn_out', '13_mlp_out', '14_attn_out', '14_mlp_out', '15_attn_out', '15_mlp_out', '16_attn_out', '16_mlp_out', '17_attn_out', '17_mlp_out', '18_attn_out', '18_mlp_out', '19_attn_out', '19_mlp_out', '20_attn_out', '20_mlp_out', '21_attn_out', '21_mlp_out', '22_attn_out', '22_mlp_out', '23_attn_out', '23_mlp_out', '24_attn_out', '24_mlp_out', '25_attn_out', '25_mlp_out']
 # llama
 layer_names = ['embed', '0_attn_out', '0_mlp_out', '1_attn_out', '1_mlp_out', '2_attn_out', '2_mlp_out', '3_attn_out', '3_mlp_out', '4_attn_out', '4_mlp_out', '5_attn_out', '5_mlp_out', '6_attn_out', '6_mlp_out', '7_attn_out', '7_mlp_out', '8_attn_out', '8_mlp_out', '9_attn_out', '9_mlp_out', '10_attn_out', '10_mlp_out', '11_attn_out', '11_mlp_out', '12_attn_out', '12_mlp_out', '13_attn_out', '13_mlp_out', '14_attn_out', '14_mlp_out', '15_attn_out', '15_mlp_out', '16_attn_out', '16_mlp_out', '17_attn_out', '17_mlp_out', '18_attn_out', '18_mlp_out', '19_attn_out', '19_mlp_out', '20_attn_out', '20_mlp_out', '21_attn_out', '21_mlp_out', '22_attn_out', '22_mlp_out', '23_attn_out', '23_mlp_out', '24_attn_out', '24_mlp_out', '25_attn_out', '25_mlp_out', '26_attn_out', '26_mlp_out', '27_attn_out', '27_mlp_out', '28_attn_out', '28_mlp_out', '29_attn_out', '29_mlp_out', '30_attn_out', '30_mlp_out', '31_attn_out', '31_mlp_out']
-# 定义层数与均值的对应关系
+# 定义层数与均值的对应关系 relation between numbers of layers and average values
 # gpt2small
 # mean_values = {
 #     21: 18.9010, 25: 13.3663, 23: 12.1610, 24: 11.6002, 22: 11.2184, 26: 10.6317, 18: 10.3195,
@@ -44,25 +44,24 @@ mean_values = {
    52: -0.1448, 65: -0.7757
 }
 
-# 将均值字典中的索引值减 1 以便与 layer_names 列表对齐（因为字典的索引是从 1 开始的）
+
 adjusted_mean_values = {i-1: mean_values[i] for i in mean_values}
 
-# 根据调整后的层数索引重新排序均值
 sorted_layer_indexes = sorted(adjusted_mean_values.keys())
 sorted_mean_values = [adjusted_mean_values[i] for i in sorted_layer_indexes]
 
-# 绘制折线图
+
 plt.figure(figsize=(10, 6))
 plt.plot(range(len(sorted_mean_values)), sorted_mean_values, marker='o', linestyle='-', color='b')
 
-# 设置 x 轴为层名
+
 plt.xticks(range(len(sorted_mean_values)), [layer_names[i] for i in sorted_layer_indexes], rotation=90, fontsize=5)
 
-# 设置图表标题和轴标签
+
 plt.title('Layer-wise Mean Values')
 plt.xlabel('Layers')
 plt.ylabel('Mean Values')
 plt.savefig('layer_attribution_llama.pdf')
-# 显示图表
+
 plt.tight_layout()
 plt.show()
