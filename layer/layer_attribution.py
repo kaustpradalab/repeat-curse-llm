@@ -1,13 +1,6 @@
 # Standard imports
 import os
 from evaluate_agent import evaluate_agent
-# 批量设置环境变量
-os.environ['HF_DATASETS_CACHE'] = '/root/autodl-tmp/.catch'
-os.environ['HF_CACHE_DIR'] = '/root/autodl-tmp/.catch'
-os.environ['HF_HOME'] = '/root/autodl-tmp/.catch/huggingface'
-os.environ['HF_HUB_CACHE'] = '/root/autodl-tmp/.catch/huggingface/hub'
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-os.environ['HF_TOKEN'] = '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'
 import plotly.express as px
 from transformer_lens.hook_points import HookPoint
 from IPython.display import IFrame
@@ -157,38 +150,26 @@ def residual_stack_to_logit_diff(
         cache: ActivationCache,
         logit_diff_directions: Float[Tensor, "batch d_model"]
 ) -> Float[Tensor, "..."]:
-    '''
-    计算每一层的平均 logit 差异（正确与错误答案之间的差异）。
 
-    参数:
-    - residual_stack: 当前层的残差激活，形状为 (component, batch, d_model)
-    - cache: 模型的激活缓存，包含有关模型所有层的信息
-    - logit_diff_directions: 正确和错误答案的残差方向差异，形状为 (batch, d_model)
-
-    返回:
-    - 每一层的 logit 差异，形状为 (component,) 或与残差堆栈的形状相匹配
-    '''
-    # 计算每一层的 logit 差异贡献
+    # calculate every layer's logit difference contribution
     layer_contributions = []
     for layer_residual in residual_stack:
-        # 计算残差流在这一层的 logit 差异
+       
         logit_contribution = torch.sum(layer_residual * logit_diff_directions, dim=-1)
         layer_contributions.append(logit_contribution)
 
-    # 将每一层的贡献拼接在一起，得到一个 [component, batch] 的张量
+    # concatenate each layer's contribution to get a [component, batch] tensor
     logit_diff_per_layer = torch.stack(layer_contributions, dim=0)
 
-    # 返回每一层的 logit 差异，直接返回
     return logit_diff_per_layer
 
 
-# 获取每层的残差数据 (per_layer_residual)
+
 per_layer_residual, labels = cache.decompose_resid(layer=-1, pos_slice=-1, return_labels=True)
 print(labels)
 print(per_layer_residual.shape)
 print(logit_diff_directions.shape)
-# 使用 residual_stack_to_logit_diff 函数计算每层的 logit 差异
+# calculate the logit difference
 logit_lens_logit_diffs = residual_stack_to_logit_diff(per_layer_residual, cache, logit_diff_directions)
 
-# 打印或分析每层的贡献
 print(f"Logit differences per layer: {logit_lens_logit_diffs}")
