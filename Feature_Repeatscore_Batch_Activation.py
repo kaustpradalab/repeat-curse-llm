@@ -2,15 +2,9 @@
 import random
 import os
 from evaluate_agent import evaluate_agent
-# 批量设置环境变量
-os.environ['HF_DATASETS_CACHE'] = '/root/autodl-tmp/.catch'
-os.environ['HF_CACHE_DIR'] = '/root/autodl-tmp/.catch'
-os.environ['HF_HOME'] = '/root/autodl-tmp/.catch/huggingface'
-os.environ['HF_HUB_CACHE'] = '/root/autodl-tmp/.catch/huggingface/hub'
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-os.environ['HF_TOKEN'] = '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'
+
 import sys
-# 将父文件夹的路径添加到 sys.path
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from transformer_lens.hook_points import HookPoint
 from IPython.display import IFrame
@@ -56,8 +50,7 @@ else:
     device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device: {device}")
 
-feature_id = [] # 所有的feature的列表
-
+feature_id = [] 
 df = pd.DataFrame.from_records({k:v.__dict__ for k,v in get_pretrained_saes_directory().items()}).T
 df.drop(columns=["expected_var_explained", "expected_l0", "config_overrides", "conversion_func"], inplace=True)
 
@@ -77,11 +70,11 @@ def access_dataset(dataset):
     ds = load_dataset(dataset)
     if 'Academic' in dataset:
         # dataset="DisgustingOzil/Academic_dataset_ShortQA"
-        for i in range(1): # 调整测试的数量
+        for i in range(1): 
             response = ds['train']['response'][i]
-            # 使用正则表达式匹配 <question> 标签之间的内容
+            
             question = re.search(r'<question>(.*?)</question>', response)
-            question = question.group(1).strip()  # 打印匹配到的 question 内容
+            question = question.group(1).strip() 
             input_list.append(question)
         return input_list
 
@@ -101,14 +94,14 @@ def steering_hook(
     activations: Float[Tensor, "batch pos d_in"],
     hook: HookPoint,
     sae: SAE,
-    latent_idxs: list[int],  # 修改为接受一个列表
+    latent_idxs: list[int],  
     steering_coefficient: float,
 ) -> Tensor:
     """
     Steers the model by returning a modified activations tensor, with multiples of the steering vectors added 
     to all sequence positions for each specified latent index.
     """
-    # 遍历所有的latent_idx，将每个对应的steering vector加到activations上
+    # give steering vector to activations
     for latent_idx in latent_idxs:
         activations += steering_coefficient * sae.W_dec[latent_idx]
     
@@ -182,7 +175,7 @@ def duc(model_path, dataset, save_path):
         latent_idxs = [21185,25206,2152,26865,1108,17963]
         #latent_idxs = [18296, 24765, 8472, 21781, 16733, 11346, 3941, 29941, 31173, 26396, 25590, 29723, 25206, 32613, 20033, 18957, 9680, 15259, 20466, 29066, 7969, 29415, 24354, 24941, 18182, 19643, 29904, 12634, 32632, 22157, 2608, 6510, 10308, 27359, 29803, 26231, 7630, 27239, 27251, 11473, 12961, 22690, 32342, 1471, 17056, 25173, 26361, 30940, 30991, 5673, 22781, 25515, 10135, 3407, 3435, 4813, 28580, 25039, 32725, 403, 731, 1948, 26004, 20092, 496, 5184, 9001, 16612, 25450, 30824, 1046, 25758, 1031, 22382, 22478, 5676, 24792, 26802, 29227, 4859, 31317, 8594, 1306, 13115, 17596, 19992, 22959, 23440, 29599, 30366, 20417, 28457, 10817, 23993, 15632, 3002, 6412, 10235, 24323, 24741]
 
-    # 确保目标文件夹存在
+
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     with open(save_path, 'w', encoding='utf-8') as f_out:
