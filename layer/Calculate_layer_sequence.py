@@ -1,6 +1,5 @@
 import torch
 
-# 假设 logit_diff_per_layer 是一个包含每一层 logit 差异的张量
 logit_diff_per_layer = torch.tensor([[ 2.0628e-03, -2.3460e-02, -1.2513e-04, -1.4532e-04,  6.4619e-04,
           7.4359e-04, -2.5292e-03,  2.4175e-03],
         [ 1.5884e-02,  1.1386e-02, -2.1240e-03, -7.9223e-04,  8.9147e-03,
@@ -132,12 +131,12 @@ logit_diff_per_layer = torch.tensor([[ 2.0628e-03, -2.3460e-02, -1.2513e-04, -1.
         [-3.4392e+00,  1.2220e+00, -2.1392e-01, -2.2974e-01, -1.2703e+00,
          -2.0254e+00, -6.5263e-01,  4.0349e-01]])
 
-# 计算每层的均值
+
 mean_values = logit_diff_per_layer.mean(dim=1)
 
-# 将均值与对应层数一起存储，并按均值排序
+
 sorted_means = sorted(enumerate(mean_values), key=lambda x: x[1], reverse=True)
 
-# 打印排序结果
+
 for idx, mean in sorted_means:
     print(f"Layer {idx+1} - Mean: {mean.item():.4f}")
