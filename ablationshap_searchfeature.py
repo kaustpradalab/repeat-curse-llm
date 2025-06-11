@@ -1,13 +1,6 @@
 # Standard imports
 import os
 
-# 批量设置环境变量
-os.environ['HF_DATASETS_CACHE'] = '/root/autodl-tmp/.catch'
-os.environ['HF_CACHE_DIR'] = '/root/autodl-tmp/.catch'
-os.environ['HF_HOME'] = '/root/autodl-tmp/.catch/huggingface'
-os.environ['HF_HUB_CACHE'] = '/root/autodl-tmp/.catch/huggingface/hub'
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-os.environ['HF_TOKEN'] = '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'
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from transformer_lens.hook_points import HookPoint
@@ -55,7 +48,7 @@ else:
     device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device: {device}")
 
-feature_id = []  # 所有的feature的列表
+feature_id = []  # all features list
 
 from sae_lens.toolkit.pretrained_saes_directory import get_pretrained_saes_directory
 
@@ -103,10 +96,6 @@ sae, cfg_dict, sparsity = SAE.from_pretrained(
 Part 2: repeat score
 '''
 
-# 信息熵
-# def compute_repeat_score(input_sentence):
-#     return Information_Entropy.calculate_ngram_entropy(input_sentence, 1)
-
 # metrics
 def compute_metrics(input_sentence, metric):
     if metric == 'rs':
@@ -125,11 +114,11 @@ ds = load_dataset("DisgustingOzil/Academic_dataset_ShortQA")
 
 input_list = []
 
-for i in range(50):  # 调整测试的数量
+for i in range(50):  # test items
     response = ds['train']['response'][i]
-    # 使用正则表达式匹配 <question> 标签之间的内容
+    # mathe the content in <question> tag
     question = re.search(r'<question>(.*?)</question>', response)
-    question = question.group(1).strip()  # 打印匹配到的 question 内容
+    question = question.group(1).strip()  
     input_list.append(question)
 print(f"input list: {input_list}")
 
@@ -139,23 +128,21 @@ Part 4: Get Feature Description(not used)
 
 
 def extract_description_from_html(html_content):
-    # 提取中间
     def extract_between_strings(text, start, end):
         """
         从 text 中提取位于 start 和 end 之间的子字符串，并去除前后空格。
         """
         parts = text.split(start)
         parts = parts[1].split(end)[0]
-        return parts.strip()  # 去除前后空格
+        return parts.strip()
 
-    # 从 'self.__next_f.push([1,"12:' 和 '</script>' 之间提取内容
     json_data = extract_between_strings(html_content.text, 'self.__next_f.push([1,"12:', '</script>')
 
     if not json_data:
         return "Failed to find the expected JSON block."
 
     length = len(json_data)
-    # 去掉末尾的字符
+
     sub = '[1, "12:' + json_data[:length - 1]
 
     json_object = json.loads(sub)
@@ -163,22 +150,18 @@ def extract_description_from_html(html_content):
     ret = json_object[1]
     start_index = ret.find("12:") + len("12:")
 
-    # 提取从 "12:" 后面的部分，去除空格
+
     ret = ret[start_index:].strip()
 
     json_object = json.loads(ret)
 
-    # JSON 数据结构中提取 description 字段
+
     json_ret = json_object[3]["children"][3]["children"][3]["children"][3]["initialNeuron"]["explanations"][0][
         "description"]
-
-    # 返回提取到的 description
     return json_ret
 
 
 html_template = "https://neuronpedia.org/{}/{}/{}?embed=true&embedexplanation=true&embedplots=true&embedtest=true&height=300"
-
-
 
 
 '''
@@ -236,11 +219,11 @@ def generate_with_steering(
 Part 6: Main 
 '''
 
-all_feature = [i for i in range(0, 32767)] # gpt2 24576 gemma 16383 llama 32767
+all_feature = [i for i in range(0, 32767)] # change the feature id
 result = f'repeat_feature/{use_model}_repeat_feature.jsonl'
 os.makedirs(os.path.dirname(result), exist_ok=True)
 
-# # 读取已经处理过的特征
+# find the processed features
 # processed_features = []
 # with open(result, 'r', encoding='utf-8') as f_check:
 #     for line in f_check:
@@ -248,23 +231,23 @@ os.makedirs(os.path.dirname(result), exist_ok=True)
 #         processed_features.append(data['feature_idx'])
             
 with open(result, 'a', encoding='utf-8') as f:
-    # 从 input_list 中随机选择一个输入
+    # 
     for feature_idx in tqdm(all_feature, desc='processing features:'):
         # if feature_idx in processed_features:
         #     continue
-        input = random.choice(input_list)  # 从 input_list 中随机选择一个输入
+        input = random.choice(input_list) 
 
-        # 生成 steered output
+        # generate steered output
         steered_output = generate_with_steering(
             llm,
             sae,
             input,
             feature_idx,
-            steering_coefficient=40,  # 设个常量的 steering 系数
+            steering_coefficient=40,  # change the effect at here
         )
         repeat_score = compute_metrics(steered_output, 'rs')
         information_entropy = compute_metrics(steered_output, 'ie')
-        # 输出每个特征的变化
+        
         print(f"Feature {feature_idx} repeat score is {repeat_score:.2f}\n")
 
         result = {
