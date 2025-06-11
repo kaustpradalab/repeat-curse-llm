@@ -2,13 +2,6 @@
 import random
 import os
 from evaluate_agent import evaluate_agent
-# 批量设置环境变量
-os.environ['HF_DATASETS_CACHE'] = '/root/autodl-tmp/.catch'
-os.environ['HF_CACHE_DIR'] = '/root/autodl-tmp/.catch'
-os.environ['HF_HOME'] = '/root/autodl-tmp/.catch/huggingface'
-os.environ['HF_HUB_CACHE'] = '/root/autodl-tmp/.catch/huggingface/hub'
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-os.environ['HF_TOKEN'] = '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'
 from transformer_lens.hook_points import HookPoint
 from IPython.display import IFrame
 import json
@@ -43,7 +36,7 @@ else:
     device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device: {device}")
 
-feature_id = [] # 所有的feature的列表
+feature_id = [] 
 
 from sae_lens.toolkit.pretrained_saes_directory import get_pretrained_saes_directory
 
@@ -52,15 +45,7 @@ df.drop(columns=["expected_var_explained", "expected_l0", "config_overrides", "c
 # from transformer_lens import HookedTransformer
 from sae_lens import SAE, HookedSAETransformer
 
-# # 配置 logging
-# logging.basicConfig(
-#     level=logging.INFO,  # 记录 INFO 级别及以上的日志
-#     format='%(asctime)s - %(levelname)s - %(message)s',  # 日志格式
-#     handlers=[
-#         logging.FileHandler('llama.log'),  # 输出到文件 app.log
-#         logging.StreamHandler()  # 输出到控制台
-#     ]
-# )
+
 torch.cuda.empty_cache()
 accelerator = Accelerator()
 accelerator.free_memory()
@@ -112,11 +97,11 @@ ds = load_dataset("DisgustingOzil/Academic_dataset_ShortQA")
 
 input_list = []
 
-for i in range(50): # 调整测试的数量
+for i in range(50):
     response = ds['train']['response'][i]
-    # 使用正则表达式匹配 <question> 标签之间的内容
+  
     question = re.search(r'<question>(.*?)</question>', response)
-    question = question.group(1).strip()  # 打印匹配到的 question 内容
+    question = question.group(1).strip()  
     input_list.append(question)
 print(f"input list: {input_list}")
 
@@ -124,23 +109,20 @@ print(f"input list: {input_list}")
 Part 4: Get Feature Description(not used)
 '''
 def extract_description_from_html(html_content):
-    # 提取中间
+ 
     def extract_between_strings(text, start, end):
-        """
-        从 text 中提取位于 start 和 end 之间的子字符串，并去除前后空格。
-        """
         parts = text.split(start)
         parts = parts[1].split(end)[0]
-        return parts.strip()  # 去除前后空格
+        return parts.strip()  
 
-    # 从 'self.__next_f.push([1,"12:' 和 '</script>' 之间提取内容
+
     json_data = extract_between_strings(html_content.text, 'self.__next_f.push([1,"12:', '</script>')
 
     if not json_data:
         return "Failed to find the expected JSON block."
 
     length = len(json_data)
-    # 去掉末尾的字符
+    
     sub = '[1, "12:' + json_data[:length - 1]
 
     json_object = json.loads(sub)
@@ -148,16 +130,15 @@ def extract_description_from_html(html_content):
     ret = json_object[1]
     start_index = ret.find("12:") + len("12:")
 
-    # 提取从 "12:" 后面的部分，去除空格
+  
     ret = ret[start_index:].strip()
 
     json_object = json.loads(ret)
 
-    # JSON 数据结构中提取 description 字段
+
     json_ret = json_object[3]["children"][3]["children"][3]["children"][3]["initialNeuron"]["explanations"][0][
             "description"]
 
-    # 返回提取到的 description
     return json_ret
 
 
@@ -215,9 +196,9 @@ def generate_with_steering(
         output = model.generate(prompt, max_new_tokens=max_new_tokens, **GENERATE_KWARGS)
 
     return output
-# 测试单个feature的影响
-latent_idxs = 4 # president-100 # 重复最多的feature-6408 #目前出现明显重复的16903，16553
-# 测试一组
+# test a single feature
+latent_idxs = 4 
+# test a group of features
 latent_idxs = [5755, 16361, 10366, 9817, 1147, 15494, 3020, 5716, 14066, 5362, 10834, 12640,
     2894, 9338, 16149, 15201, 8095, 4434, 9476, 1398, 13317, 10873, 184, 16256,
     443, 15168, 4082, 14853, 12842, 10605, 5293, 5433, 7923, 7079, 15920, 6736,
@@ -262,7 +243,6 @@ for latent_idx in latent_idxs:
     html_content = requests.get(html)
     description = extract_description_from_html(html_content)
     print(description)
-    # 计算 repeat score 的变化并存储
-    ablation_effects= new_repeat_score - original_repeat_score # n-gram原来的比后来的小
+    ablation_effects= new_repeat_score - original_repeat_score 
     logging.info(f"Ablated Feature ${latent_idx}: {description}$ changed repeat score by {ablation_effects:.2f}\n")
 
