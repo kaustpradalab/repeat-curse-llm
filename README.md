@@ -38,6 +38,7 @@ python ablation_search_feature.py
 - Configuration Details
 In this script, the Sparse Autoencoder (SAE) configuration is set based on the layer with the most significant attribution. The `sae_id` is determined accordingly. To look up `sae_id` names, visit [Neuronpedia](https://www.neuronpedia.org/).
 
+
 1. Loading the Language Model
 The language model is initialized as follows:
 ```python
