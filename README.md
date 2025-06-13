@@ -31,3 +31,7 @@ If you need visualization:
 python layer_attribution_draw.py
 ```
 ### Feature Localization
+```
+python ablation_search_feature.py
+```
+Based on the obtained repeat score, determine whether the feature is a repetition feature.
