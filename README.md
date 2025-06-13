@@ -2,7 +2,7 @@
 
 <div align="center">
 
-## Understanding the Repeat Curse in Large Language Modelsfrom a Feature Perspective
+## Understanding the Repeat Curse in Large Language Models from a Feature Perspective
 
 
 Junchi Yao*, Shu Yang*, Jianhua Xu, Lijie Hu, Mengdi Li, Di Wang†
