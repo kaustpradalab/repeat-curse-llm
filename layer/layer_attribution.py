@@ -74,7 +74,6 @@ example_prompt = "School is a place where you school is a school is a school is 
 example_answer = " school"
 utils.test_prompt(example_prompt, example_answer, model, prepend_bos=True)
 
-# 12.13 prompt
 prompts = [
     "Is displacement is a vector or scalar is a vector is is a vector is is",
     "School school school is a place where you school school school is a school is a school is a",
@@ -96,27 +95,6 @@ answers = [
     [" measured", " limited"]
 ]
 
-# 12.14 prompt
-# prompts = [
-#     "vector vector vector vector vector vector vector vector vector vector vector vector vector vector vector vector vector vector",#
-#     "Tom Tom Tom Tom Tom Tom Tom Tom Tom Tom",#
-#     "Mary Mary Mary Mary Mary Mary Mary Mary",#
-#     "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",#
-#     "Hollywood Hollywood Hollywood Hollywood Hollywood Hollywood Hollywood Hollywood Hollywood Hollywood",
-#     "town town town town town town town town",#
-#     "United States of America United States of America United States of America United States of America United States of America",#
-#     "China China China China China China China China China",
-# ]
-# answers = [
-#     [" vector", " is"],
-#     [" Tom", " is"],
-#     [" Mary", " is"],
-#     [" Ben", " is"],
-#     [" Hollywood", " is"],
-#     [" town", " is"],
-#     [" United", " is"],
-#     [" China", " is"],
-# ]
 answer_tokens = torch.concat([
     model.to_tokens(words, prepend_bos=False).T for words in answers
 ])
