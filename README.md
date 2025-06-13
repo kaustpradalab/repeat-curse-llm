@@ -17,4 +17,17 @@ Junchi Yao*, Shu Yang*, Jianhua Xu, Lijie Hu, Mengdi Li, Di Wang†
 - **2025/06/13**: ❗️We have released our code.
 - **2025/05/15**:  😍 Our paper is accepted by Findings of ACL 2025
 
+## Overview
 ![image](image/method_f-1.png)
+
+## Repeatition Feature Identification
+### Layer Localization
+```
+python layer_contribution.py
+python Calculate_layer_sequence.py
+```
+If you need visualization:
+```
+python layer_attribution_draw.py
+```
+### Feature Localization
