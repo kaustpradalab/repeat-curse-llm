@@ -62,7 +62,7 @@ sae, cfg_dict, sparsity = SAE.from_pretrained(
 
 
 ## Feature Steering
-Replace the `latent_idxs` variable with your selected repetition features and adjust the `steering_coefficient` (>0).
+Replace the `latent_idxs` variable with your selected repetition features and adjust the `steering_coefficient` (>0). 
 ```
-python feature_steering.py
+python feature_steering.py --model_path meta-llama/Llama-3.1-8B --dataset YokyYao/Diversity_Challenge --save_path /your/path
 ```
