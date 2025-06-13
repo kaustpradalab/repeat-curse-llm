@@ -35,3 +35,9 @@ python layer_attribution_draw.py
 python ablation_search_feature.py
 ```
 Based on the obtained repeat score, determine whether the feature is a repetition feature.
+
+## Feature Steering
+Replace the `latent_idxs` variable with your selected repetition features and adjust the `steering_coefficient` (>0).
+```
+python feature_steering.py
+```
